@@ -31,7 +31,8 @@ public class DataManager {
     public static void loadFromDatataBase(NoteKeeperOpenHelper openHelper){
         SQLiteDatabase db = openHelper.getReadableDatabase();
         final String[] courseColumns = {CourseInfoEntry.COURSE_ID_COLUMN, CourseInfoEntry.COURSE_TITLE_COLUMN};
-        final String[] noteColumns = {NoteInfoEntry.NOTE_TITLE_COLUMN, NoteInfoEntry.NOTE_TEXT_COLUMN, NoteInfoEntry.COURSE_ID_COLUMN};
+        final String[] noteColumns = {NoteInfoEntry.NOTE_TITLE_COLUMN, NoteInfoEntry.NOTE_TEXT_COLUMN,
+                NoteInfoEntry.COURSE_ID_COLUMN, NoteInfoEntry._ID};
 
         String noteOrderBy = NoteInfoEntry.COURSE_ID_COLUMN + ", " + NoteInfoEntry.NOTE_TITLE_COLUMN;
 
@@ -64,6 +65,7 @@ public class DataManager {
         int courseIdPos = cursor.getColumnIndex(NoteInfoEntry.COURSE_ID_COLUMN);
         int noteTextPos = cursor.getColumnIndex(NoteInfoEntry.NOTE_TEXT_COLUMN);
         int noteTitlePos = cursor.getColumnIndex(NoteInfoEntry.NOTE_TITLE_COLUMN);
+        int noteIdPos = cursor.getColumnIndex(NoteInfoEntry._ID);
 
         DataManager dm = getInstance();
         dm.mNotes.clear();
@@ -71,9 +73,10 @@ public class DataManager {
             String courseId = cursor.getString(courseIdPos);
             String noteTitle = cursor.getString(noteTitlePos);
             String noteText = cursor.getString(noteTextPos);
+            int id = cursor.getInt(noteIdPos);
 
             CourseInfo noteCourse = dm.getCourse(courseId);
-            NoteInfo note = new NoteInfo(noteCourse, noteTitle, noteText);
+            NoteInfo note = new NoteInfo(noteCourse, noteTitle, noteText, id);
             dm.mNotes.add(note);
         }
         cursor.close();
