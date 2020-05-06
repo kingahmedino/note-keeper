@@ -2,6 +2,7 @@ package com.example.notekeeper;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,18 +30,16 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-//        implements NavigationView.OnNavigationItemSelectedListener
-{
+public class MainActivity extends AppCompatActivity {
 
     private NoteListAdapterClass noteListAdapter;
-
     private AppBarConfiguration mAppBarConfiguration;
     private DrawerLayout drawer;
     private RecyclerView mRecyclerItems;
     private LinearLayoutManager notesLayoutManager;
     private CourseListAdapterClass courseListAdapter;
     private GridLayoutManager courseLayoutManager;
+    private NoteKeeperOpenHelper mDbOpenHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +47,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mDbOpenHelper = new NoteKeeperOpenHelper(this);
+
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +90,12 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        mDbOpenHelper.close();
+        super.onDestroy();
+    }
+
     private void handleShare() {
         View view = findViewById(R.id.list_items);
         Snackbar.make(view, "Share To - " +
@@ -116,6 +125,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initializeDisplayContent(){
+        DataManager.loadFromDatataBase(mDbOpenHelper);
+
         mRecyclerItems = (RecyclerView) findViewById(R.id.list_items);
         notesLayoutManager = new LinearLayoutManager(this);
         courseLayoutManager = new GridLayoutManager(this,
@@ -132,6 +143,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerItems.setAdapter(noteListAdapter);
         mRecyclerItems.setLayoutManager(notesLayoutManager);
     }
+
     private void displayCourses() {
         mRecyclerItems.setAdapter(courseListAdapter);
         mRecyclerItems.setLayoutManager(courseLayoutManager);
@@ -163,24 +175,6 @@ public class MainActivity extends AppCompatActivity
                 || super.onSupportNavigateUp();
     }
 
-//    @Override
-//    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//        int id = item.getItemId();
-//
-//        switch(id){
-//            case R.id.nav_notes:
-//                handleSelection("Notes");
-//            case R.id.nav_course:
-//                handleSelection("Courses");
-//            case R.id.nav_share:
-//                handleSelection("Share");
-//            case R.id.nav_send:
-//                handleSelection("Send");
-//        }
-//        drawer.closeDrawer(GravityCompat.START);
-//        return true;
-//    }
-//
     private void handleSelection(int message_id) {
         View view = findViewById(R.id.list_items);
         Snackbar.make(view, message_id, Snackbar.LENGTH_LONG).show();
