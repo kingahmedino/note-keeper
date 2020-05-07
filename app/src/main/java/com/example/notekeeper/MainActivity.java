@@ -2,6 +2,7 @@ package com.example.notekeeper;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -106,8 +108,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        noteListAdapter.notifyDataSetChanged();
+        loadNotes();
         updateNavHeader();
+    }
+
+    private void loadNotes() {
+        SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
+        final String[] noteColumns = {NoteInfoEntry.NOTE_TITLE_COLUMN,
+                NoteInfoEntry.COURSE_ID_COLUMN, NoteInfoEntry._ID};
+
+        String noteOrderBy = NoteInfoEntry.COURSE_ID_COLUMN + ", " + NoteInfoEntry.NOTE_TITLE_COLUMN;
+        final Cursor noteCursor = db.query(NoteInfoEntry.TABLE_NAME, noteColumns,
+                null, null, null, null, noteOrderBy);
+        noteListAdapter.changeCursor(noteCursor);
     }
 
     private void updateNavHeader() {
@@ -132,9 +145,8 @@ public class MainActivity extends AppCompatActivity {
         courseLayoutManager = new GridLayoutManager(this,
                 getResources().getInteger(R.integer.course_grid_span));
 
-        List<NoteInfo> notes = DataManager.getInstance().getNotes();
         List<CourseInfo> courses = DataManager.getInstance().getCourses();
-        noteListAdapter = new NoteListAdapterClass(this, notes);
+        noteListAdapter = new NoteListAdapterClass(this, null);
         courseListAdapter = new CourseListAdapterClass(this, courses);
         displayNotes();
     }
