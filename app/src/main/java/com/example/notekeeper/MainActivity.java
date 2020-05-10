@@ -1,6 +1,10 @@
 package com.example.notekeeper;
 
+import android.annotation.SuppressLint;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,7 +36,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import static com.example.notekeeper.NoteActivity.LOADER_NOTES;
+
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private NoteListAdapterClass noteListAdapter;
     private AppBarConfiguration mAppBarConfiguration;
@@ -42,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private CourseListAdapterClass courseListAdapter;
     private GridLayoutManager courseLayoutManager;
     private NoteKeeperOpenHelper mDbOpenHelper;
+    private SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mDbOpenHelper = new NoteKeeperOpenHelper(this);
-
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -108,8 +114,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadNotes();
+        db = mDbOpenHelper.getReadableDatabase();
+        getLoaderManager().restartLoader(LOADER_NOTES, null, this);
         updateNavHeader();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        db.close();
     }
 
     private void loadNotes() {
@@ -190,5 +203,39 @@ public class MainActivity extends AppCompatActivity {
     private void handleSelection(int message_id) {
         View view = findViewById(R.id.list_items);
         Snackbar.make(view, message_id, Snackbar.LENGTH_LONG).show();
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        CursorLoader loader = null;
+        if(id == LOADER_NOTES){
+            loader = new CursorLoader(this){
+                @Override
+                public Cursor loadInBackground() {
+                    final String[] noteColumns = {NoteInfoEntry.NOTE_TITLE_COLUMN,
+                            NoteInfoEntry.COURSE_ID_COLUMN, NoteInfoEntry._ID};
+
+                    String noteOrderBy = NoteInfoEntry.COURSE_ID_COLUMN + ", " + NoteInfoEntry.NOTE_TITLE_COLUMN;
+                    return db.query(NoteInfoEntry.TABLE_NAME, noteColumns,
+                            null, null, null, null, noteOrderBy);
+                }
+            };
+        }
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(loader.getId() == LOADER_NOTES){
+            noteListAdapter.changeCursor(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if(loader.getId() == LOADER_NOTES){
+            noteListAdapter.changeCursor(null);
+        }
     }
 }
