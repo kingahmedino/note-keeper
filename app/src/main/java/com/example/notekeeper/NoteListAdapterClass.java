@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class NoteListAdapterClass extends RecyclerView.Adapter<NoteListAdapterCl
     private void populateColumnPositions() {
         if(mCursor == null)
             return;
-        coursePos = mCursor.getColumnIndex(NoteInfoEntry.COURSE_ID_COLUMN);
+        coursePos = mCursor.getColumnIndex(CourseInfoEntry.COURSE_TITLE_COLUMN);
         noteTitlePos = mCursor.getColumnIndex(NoteInfoEntry.NOTE_TITLE_COLUMN);
         iDPos = mCursor.getColumnIndex(NoteInfoEntry._ID);
     }
