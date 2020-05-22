@@ -31,6 +31,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
+import com.example.notekeeper.NoteKeeperProviderContract.Courses;
+import com.example.notekeeper.NoteKeeperProviderContract.Notes;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -211,22 +213,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         CursorLoader loader = null;
         if(id == LOADER_NOTES){
-            loader = new CursorLoader(this){
-                @Override
-                public Cursor loadInBackground() {
-                    final String[] noteColumns = {NoteInfoEntry.NOTE_TITLE_COLUMN,
-                            NoteInfoEntry.getQName(NoteInfoEntry._ID),
-                            CourseInfoEntry.COURSE_TITLE_COLUMN};
-
-                    String noteOrderBy = CourseInfoEntry.COURSE_TITLE_COLUMN + ", " + NoteInfoEntry.NOTE_TITLE_COLUMN;
-                    String tablesWithJoin = NoteInfoEntry.TABLE_NAME + " JOIN " + CourseInfoEntry.TABLE_NAME +
-                            " ON " + NoteInfoEntry.getQName(NoteInfoEntry.COURSE_ID_COLUMN) +
-                            " = " + CourseInfoEntry.getQName(CourseInfoEntry.COURSE_ID_COLUMN);
-
-                    return db.query(tablesWithJoin, noteColumns,
-                            null, null, null, null, noteOrderBy);
-                }
+            final String[] noteColumns = {
+                    Notes.NOTE_TITLE_COLUMN,
+                    Notes._ID,
+                    Courses.COURSE_TITLE_COLUMN
             };
+
+            String noteOrderBy = Courses.COURSE_TITLE_COLUMN + ", " + Notes.NOTE_TITLE_COLUMN;
+            loader = new CursorLoader(this, Notes.CONTENT_EXPANDED_URI, noteColumns,
+                    null, null, noteOrderBy);
         }
         return loader;
     }
