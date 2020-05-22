@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
+import com.example.notekeeper.NoteKeeperProviderContract.Courses;
 
 public class NoteActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String NOTE_ID = "com.example.notekeeper.NOTE_POSITION";
@@ -328,19 +330,12 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private CursorLoader createLoaderCourses() {
         courseQueryFinished = false;
-        return new CursorLoader(this){
-            @Override
-            public Cursor loadInBackground() {
-                SQLiteDatabase db = openHelper.getReadableDatabase();
-                String [] courseColumns = {
-                        CourseInfoEntry.COURSE_TITLE_COLUMN,
-                        CourseInfoEntry.COURSE_ID_COLUMN,
-                        CourseInfoEntry._ID };
-                return db.query( CourseInfoEntry.TABLE_NAME, courseColumns,
-                        null, null, null, null,
-                        CourseInfoEntry.COURSE_TITLE_COLUMN);
-            }
-        };
+        Uri uri = Courses.CONTENT_URI;
+        String [] courseColumns = {
+                Courses.COURSE_TITLE_COLUMN,
+                Courses.COURSE_ID_COLUMN,
+                Courses._ID };
+        return new CursorLoader(this, uri, courseColumns, null, null, Courses.COURSE_TITLE_COLUMN);
     }
 
     private CursorLoader createLoaderNotes() {
