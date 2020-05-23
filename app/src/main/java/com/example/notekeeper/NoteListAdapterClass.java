@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notekeeper.NoteKeeperDatabaseContract.CourseInfoEntry;
 import com.example.notekeeper.NoteKeeperDatabaseContract.NoteInfoEntry;
+import com.example.notekeeper.NoteKeeperProviderContract.Courses;
+import com.example.notekeeper.NoteKeeperProviderContract.Notes;
 
 import java.util.List;
 
@@ -34,9 +36,9 @@ public class NoteListAdapterClass extends RecyclerView.Adapter<NoteListAdapterCl
     private void populateColumnPositions() {
         if(mCursor == null)
             return;
-        coursePos = mCursor.getColumnIndex(CourseInfoEntry.COURSE_TITLE_COLUMN);
-        noteTitlePos = mCursor.getColumnIndex(NoteInfoEntry.NOTE_TITLE_COLUMN);
-        iDPos = mCursor.getColumnIndex(NoteInfoEntry._ID);
+        coursePos = mCursor.getColumnIndex(Courses.COURSE_TITLE_COLUMN);
+        noteTitlePos = mCursor.getColumnIndex(Notes.NOTE_TITLE_COLUMN);
+        iDPos = mCursor.getColumnIndex(Notes._ID);
     }
 
     public void changeCursor(Cursor cursor) {
@@ -79,8 +81,8 @@ public class NoteListAdapterClass extends RecyclerView.Adapter<NoteListAdapterCl
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            mtextCourse = (TextView) itemView.findViewById(R.id.textCourse);
-            mtextTitle = (TextView) itemView.findViewById(R.id.textTitle);
+            mtextCourse = itemView.findViewById(R.id.textCourse);
+            mtextTitle = itemView.findViewById(R.id.textTitle);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

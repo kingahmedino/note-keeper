@@ -128,17 +128,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         db.close();
     }
 
-    private void loadNotes() {
-        SQLiteDatabase db = mDbOpenHelper.getReadableDatabase();
-        final String[] noteColumns = {NoteInfoEntry.NOTE_TITLE_COLUMN,
-                NoteInfoEntry.COURSE_ID_COLUMN, NoteInfoEntry._ID};
-
-        String noteOrderBy = NoteInfoEntry.COURSE_ID_COLUMN + ", " + NoteInfoEntry.NOTE_TITLE_COLUMN;
-        final Cursor noteCursor = db.query(NoteInfoEntry.TABLE_NAME, noteColumns,
-                null, null, null, null, noteOrderBy);
-        noteListAdapter.changeCursor(noteCursor);
-    }
-
     private void updateNavHeader() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
@@ -218,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Notes._ID,
                     Courses.COURSE_TITLE_COLUMN
             };
-
             String noteOrderBy = Courses.COURSE_TITLE_COLUMN + ", " + Notes.NOTE_TITLE_COLUMN;
             loader = new CursorLoader(this, Notes.CONTENT_EXPANDED_URI, noteColumns,
                     null, null, noteOrderBy);
