@@ -249,8 +249,18 @@ public class NoteActivity extends AppCompatActivity implements LoaderManager.Loa
         }else if (id == R.id.action_next){
             moveNext();
         }
+        else if (id == R.id.set_Reminder){
+            showRemiderNotification();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showRemiderNotification() {
+        String noteTitle = textNoteTitle.getText().toString();
+        String noteText = textNoteText.getText().toString();
+        int noteId = (int) ContentUris.parseId(mUri);
+        NoteKeeperNotification.notifier(this, noteTitle, noteText, noteId);
     }
 
     @Override
